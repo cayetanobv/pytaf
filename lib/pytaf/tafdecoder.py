@@ -15,7 +15,7 @@ class Decoder(object):
     def decode_taf(self):
         result = ""
 
-        result += self._decode_header(self._taf.get_header()) + "\n"
+        result += self._decode_header(self._taf.get_header()) + "\n"        
 
         for group in self._taf.get_groups():
             if group["header"]:
@@ -40,6 +40,38 @@ class Decoder(object):
 
         if self._taf.get_maintenance():
             result += self._decode_maintenance(self._taf.get_maintenance())
+
+        return(result)
+
+    def decode_taf_in_json(self):
+        result = {"station maintenance":""}
+        result["place_time_period"] = self._decode_header(self._taf.get_header())
+        result["meteorology"] = []
+        for group in self._taf.get_groups():
+            json = {"header": "", "wind":"", "visibility":"", "clouds":"", "weather":"", "windshear":""}
+
+            if group["header"]:
+                json["probtem_becmg_tempo_fm"] = self._decode_group_header(group["header"])
+
+            if group["wind"]:
+                json["wind"] = self._decode_wind(group["wind"])
+
+            if group["visibility"]:
+                json["visibility"] = self._decode_visibility(group["visibility"])
+
+            if group["clouds"]:
+                json["clouds"] = self._decode_clouds(group["clouds"])
+
+            if group["weather"]:
+                json["weather"] = self._decode_weather(group["weather"])
+
+            if group["windshear"]:
+                json["windshear"] = self._decode_windshear(group["windshear"])
+
+            result["meteorology"].append(json)
+
+        if self._taf.get_maintenance():
+            result["station maintenance"] = self._decode_maintenance(self._taf.get_maintenance())
 
         return(result)
 
