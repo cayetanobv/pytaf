@@ -15,7 +15,7 @@ class Decoder(object):
     def decode_taf(self):
         result = ""
 
-        result += self._decode_header(self._taf.get_header()) + "\n"        
+        result += self._decode_header(self._taf.get_header()) + "\n"
 
         for group in self._taf.get_groups():
             if group["header"]:
@@ -51,6 +51,7 @@ class Decoder(object):
             json = {"header": "", "wind":"", "visibility":"", "clouds":"", "weather":"", "windshear":""}
 
             if group["header"]:
+                json["header"] = " ".join(group["header"]["type"].split())
                 json["probtem_becmg_tempo_fm"] = self._decode_group_header(group["header"])
 
             if group["wind"]:
@@ -93,10 +94,10 @@ class Decoder(object):
 
         # Add ordinal suffix
         _header["origin_date"] = _header["origin_date"] + self._get_ordinal_suffix(_header["origin_date"])
-        _header["valid_from_date"] = _header["valid_from_date"] + self._get_ordinal_suffix(_header["valid_from_date"]) 
+        _header["valid_from_date"] = _header["valid_from_date"] + self._get_ordinal_suffix(_header["valid_from_date"])
         _header["valid_till_date" ] = _header["valid_till_date"] + self._get_ordinal_suffix(_header["valid_till_date"])
 
-        result += ("%(icao_code)s issued %(origin_hours)s:%(origin_minutes)s UTC on the %(origin_date)s, " 
+        result += ("%(icao_code)s issued %(origin_hours)s:%(origin_minutes)s UTC on the %(origin_date)s, "
                    "valid from %(valid_from_hours)s:00 UTC on the %(valid_from_date)s to %(valid_till_hours)s:00 UTC on the %(valid_till_date)s")
 
         result = result % _header
@@ -123,30 +124,30 @@ class Decoder(object):
                 _header["till_date"] = _header["till_date"] + till_suffix
 
             if _header["type"] == "FM":
-                result += from_str % { "from_date":    _header["from_date"], 
+                result += from_str % { "from_date":    _header["from_date"],
                                        "from_hours":   _header["from_hours"],
                                        "from_minutes": _header["from_minutes"] }
             elif _header["type"] == "PROB%s" % (_header["probability"]):
                 result += prob_str % { "probability": _header["probability"],
-                                       "from_date":   _header["from_date"], 
+                                       "from_date":   _header["from_date"],
                                        "from_hours":  _header["from_hours"],
                                        "till_date":   _header["till_date"],
                                        "till_hours":  _header["till_hours"] }
             elif "PROB" in _header["type"] and "TEMPO" in _header["type"]:
                 result += prob_tempo_str % { "probability": _header["probability"],
-                                           "from_date":   _header["from_date"], 
+                                           "from_date":   _header["from_date"],
                                            "from_hours":  _header["from_hours"],
                                            "till_date":   _header["till_date"],
                                            "till_hours":  _header["till_hours"] }
-                                       
+
             elif _header["type"] == "TEMPO":
-                result += tempo_str % { "from_date":  _header["from_date"], 
-                                        "from_hours": _header["from_hours"], 
-                                        "till_date":  _header["till_date"], 
+                result += tempo_str % { "from_date":  _header["from_date"],
+                                        "from_hours": _header["from_hours"],
+                                        "till_date":  _header["till_date"],
                                         "till_hours": _header["till_hours"] }
             elif _header["type"] == "BECMG":
-                result += becmg_str % { "from_date":  _header["from_date"], 
-                                        "from_hours": _header["from_hours"], 
+                result += becmg_str % { "from_date":  _header["from_date"],
+                                        "from_hours": _header["from_hours"],
                                         "till_date":  _header["till_date"],
                                         "till_hours": _header["till_hours"] }
 
@@ -384,4 +385,3 @@ class Decoder(object):
             suffix = "rd"
 
         return(suffix)
-        
