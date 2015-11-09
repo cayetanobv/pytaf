@@ -8,7 +8,7 @@ class TAF(object):
     """ TAF "envelope" parser """
 
     def __init__(self, string):
-        """ 
+        """
         Initializes the object with TAF report text.
 
         Args:
@@ -64,16 +64,16 @@ class TAF(object):
             TAF*    # TAF header (at times missing or duplicate)
             \s+
             (?P<type> (COR|AMD|RTD)){0,1} # Corrected/Amended/Delayed
-             
+
             \s* # There may or may not be space as COR/AMD/RTD is optional
             (?P<icao_code> [A-Z]{4}) # Station ICAO code
-            
+
             \s* # at some aerodromes does not appear
             (?P<origin_date> \d{0,2}) # at some aerodromes does not appear
             (?P<origin_hours> \d{0,2}) # at some aerodromes does not appear
             (?P<origin_minutes> \d{0,2}) # at some aerodromes does not appear
             Z? # Zulu time (UTC, that is) # at some aerodromes does not appear
-            
+
             \s*
             (?P<valid_from_date> \d{0,2})
             (?P<valid_from_hours> \d{0,2})
@@ -83,7 +83,7 @@ class TAF(object):
         """
 
         header = re.match(taf_header_pattern, string, re.VERBOSE)
-        
+
         if header:
             return header.groupdict()
         else:
@@ -97,9 +97,9 @@ class TAF(object):
 
         Raises:
             MalformedTAF: Group decoding error
-        
+
         """
-        
+
         taf_group_pattern = """
             (?:FM|(?:PROB(?:\d{1,2})\s*(?:TEMPO)?)|TEMPO|BECMG|[\S\s])[A-Z0-9\+\-/\s$]+?(?=FM|PROB|TEMPO|BECMG|$)
         """
@@ -127,13 +127,13 @@ class TAF(object):
         group["windshear"] = self._parse_wind_shear(string)
 
         return(group)
-         
+
     def _parse_group_header(self, string):
         # From header pattern
         fm_pattern = """
             (?P<type> FM) (?P<from_date>\d{2}) (?P<from_hours>\d{2})(?P<from_minutes> \d{2})
         """
-        
+
         # PROB|TEMPO|BECMG header pattern, they have almost the same format
         ptb_pattern = """
             (?P<type> (?:PROB(?P<probability>\d{1,2})\s*(?:TEMPO)?)|TEMPO|BECMG)
@@ -163,7 +163,7 @@ class TAF(object):
             (?<= \s )
             (?P<direction> (\d{3}|VRB)) # Three digits or VRB
             (?P<speed> \d{2,3})         # Next two digits are speed in knots
-            (G(?P<gust> \d{2,3})){0,1}  # Optional gust data (Gxx)
+            (G?(?P<gust> \d{2,3})){0,1}  # Optional gust data (Gxx)
             (?P<unit> KT|MPS)           # Knots or meters per second
             (?= \s|$ )
         """
@@ -200,7 +200,7 @@ class TAF(object):
         visibility_sm = re.search(visibility_pattern, string, re.VERBOSE)
         if visibility_sm:
             visibility = visibility_sm.groupdict()
-         
+
         # Metric style
         visibility_meters = re.search(visibility_meters_pattern, string, re.VERBOSE)
         if visibility_meters:
@@ -239,7 +239,7 @@ class TAF(object):
 #                break
  #           else:
             clouds.append(layer.groupdict())
-          
+
         return(clouds)
 
     def _parse_vertical_visibility(self, string):
@@ -281,7 +281,7 @@ class TAF(object):
             (?P<modifier> MI|BC|DR|BL|SH|TS|FZ|PR ){0,1}
             (?P<phenomenon> DZ|RA|SN|SG|IC|PL|GR|GS|UP|BR|FG|FU|DU|SA|HZ|PY|VA|PO|SQ|FC|SS|DS ){0,1}
         """
-        
+
         weather = []
 
         weather_words = re.findall(weather_word_pattern, string, re.VERBOSE)
@@ -317,7 +317,7 @@ class TAF(object):
             return(maintenance.group(0))
         else:
             return(None)
-            
+
     def get_taf(self):
         """ Return raw TAF string the object was initialized with """
         return self.__raw_taf
